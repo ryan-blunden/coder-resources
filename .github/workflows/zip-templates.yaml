@@ -1,0 +1,53 @@
+name: Zip Template Files
+
+on:
+  push:
+    paths:
+      - 'templates/**' # Trigger only when files in the templates directory change
+
+jobs:
+  zip-templates:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Checkout the repository
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # Step 2: Identify changed directories in the templates folder
+    - name: Get changed directories
+      id: changed_dirs
+      run: |
+        # Find all changed files in the templates directory
+        changed_files=$(git diff --name-only HEAD~1 HEAD | grep '^templates/' || true)
+        
+        # Extract unique subdirectories
+        changed_dirs=$(echo "$changed_files" | awk -F'/' '{print $2}' | sort -u)
+        
+        echo "Changed directories: $changed_dirs"
+        
+        # Save the list of changed directories for later use
+        echo "changed_dirs=$changed_dirs" >> $GITHUB_ENV
+
+    # Step 3: Create a zip for each changed directory
+    - name: Create zip files
+      run: |
+        for dir in ${{ env.changed_dirs }}; do
+          zip -r "templates/${dir}.zip" "templates/${dir}/.*"
+        done
+
+    # Step 4: Commit changes
+    - name: Commit and push changes
+      if: env.changed_dirs != ''
+      run: |
+        # Add the zip files to the commit
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add templates/*.zip
+
+        # Create the commit message listing changed directories
+        commit_message="Updated zip files for changed templates: ${{ env.changed_dirs }}"
+        git commit -m "$commit_message"
+
+        # Push changes back to the repository
+        git push
