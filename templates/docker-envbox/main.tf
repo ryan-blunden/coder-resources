@@ -480,3 +480,10 @@ module "vscode-web" {
   folder         = "/home/coder/yodaspeak"
   accept_license = true
 }
+
+module "dotfiles" {
+  count    = data.coder_workspace.me.start_count
+  source   = "registry.coder.com/modules/dotfiles/coder"
+  version  = "1.0.18"
+  agent_id = coder_agent.main.id
+}
