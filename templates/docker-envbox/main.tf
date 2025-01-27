@@ -129,6 +129,9 @@ resource "coder_agent" "main" {
       # Add default user files
       cp -rT /etc/skel ~
 
+      # Enable shell history
+      echo -e "\nHISTCONTROL=ignoredups:erasedups\nshopt -s histappend\nPROMPT_COMMAND='history -a'\n" >> ~/.bashrc
+
       # Add GitHub's SSH keys to the ~/.ssh/known_hosts to avoid the trust prompt
       if [ ! -f ~/.ssh/known_hosts ]; then
         mkdir ~/.ssh        
