@@ -318,7 +318,7 @@ resource "kubernetes_deployment" "main" {
 
           env {
             name  = "CODER_INNER_IMAGE"
-            value = "index.docker.io/ryanblunden/yodaspeak-coder:0.1.4"
+            value = "index.docker.io/codercom/enterprise-base"
           }
 
           env {
@@ -474,7 +474,6 @@ module "vscode-web" {
   version        = "1.0.22"
   agent_id       = coder_agent.main.id
   extensions     = ["ms-azuretools.vscode-docker"]
-  folder         = "/home/coder/yodaspeak"
   accept_license = true
 }
 
