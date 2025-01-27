@@ -138,9 +138,6 @@ resource "coder_agent" "main" {
       fi
       ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-      # Create vs-code web directory
-      mkdir -p /tmp/vscode-web
-
       touch ~/.init_done
     fi
   EOT
