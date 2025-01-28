@@ -126,17 +126,17 @@ resource "coder_agent" "main" {
 
     # If workspace first launch
     if [ ! -f ~/.init_done ]; then
-      # Add default user files
-      cp -rT /etc/skel ~
-
-      # Enable shell history
-      echo -e "\nHISTCONTROL=ignoredups:erasedups\nshopt -s histappend\nPROMPT_COMMAND='history -a'\n" >> ~/.bashrc
-
-      # Add GitHub's SSH keys to the ~/.ssh/known_hosts to avoid the trust prompt
-      if [ ! -f ~/.ssh/known_hosts ]; then
-        mkdir ~/.ssh        
+      if [ ! -f ~/.bashrc ]; then
+        printf "\n[info]: adding default user files and enabling shell history\n"
+        cp -rT /etc/skel ~
+        echo -e "\nHISTCONTROL=ignoredups:erasedups\nshopt -s histappend\nPROMPT_COMMAND='history -a'\n" >> ~/.bashrc
       fi
-      ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+      if [ ! -f ~/.ssh/known_hosts ]; then
+        printf "\n[info]: adding github.com to ~/.ssh/known_hosts\n"
+        mkdir ~/.ssh
+        ssh-keyscan github.com >> ~/.ssh/known_hosts
+      fi
 
       touch ~/.init_done
     fi
@@ -473,13 +473,14 @@ module "vscode-web" {
   source         = "registry.coder.com/modules/vscode-web/coder"
   version        = "1.0.22"
   agent_id       = coder_agent.main.id
-  extensions     = ["ms-azuretools.vscode-docker"]
+  extensions     = ["github.copilot", "ms-python.python", "ms-azuretools.vscode-docker"]
   accept_license = true
 }
 
 module "dotfiles" {
-  count    = data.coder_workspace.me.start_count
-  source   = "registry.coder.com/modules/dotfiles/coder"
-  version  = "1.0.18"
-  agent_id = coder_agent.main.id
+  count                 = data.coder_workspace.me.start_count
+  source                = "registry.coder.com/modules/dotfiles/coder"
+  version               = "1.0.18"
+  agent_id              = coder_agent.main.id
+  coder_parameter_order = "20"
 }
