@@ -38,7 +38,7 @@ RUN apt-get update && \
     # Docker components
     docker-ce \
     docker-ce-cli \
-    containerd.io \ 
+    containerd.io \
     docker-buildx-plugin \
     docker-compose-plugin \
     \
